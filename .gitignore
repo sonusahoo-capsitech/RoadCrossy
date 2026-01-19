@@ -1,0 +1,85 @@
+# ===============================
+# Unity generated folders
+# ===============================
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+
+# ===============================
+# Visual Studio / Rider / VSCode
+# ===============================
+.vs/
+.vscode/
+.idea/
+*.csproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+
+# ===============================
+# Unity cache & meta noise
+# ===============================
+.DS_Store
+Thumbs.db
+
+# ===============================
+# Unity crash reports
+# ===============================
+sysinfo.txt
+
+# ===============================
+# Builds & exports
+# ===============================
+*.apk
+*.aab
+*.unitypackage
+*.exe
+*.app
+*.ipa
+
+# ===============================
+# Addressables & Asset Bundles
+# (ignore generated, keep config)
+# ===============================
+/Assets/AddressableAssetsData/*/*.bin*
+/Assets/AddressableAssetsData/*/*.json*
+!/Assets/AddressableAssetsData/*.asset
+
+# ===============================
+# StreamingAssets generated
+# ===============================
+/Assets/StreamingAssets/aa/
+
+# ===============================
+# IL2CPP / Android / iOS junk
+# ===============================
+/Il2CppBuildCache/
+Android/
+iOS/
+
+# ===============================
+# Rider plugin
+# ===============================
+Assets/Plugins/Editor/JetBrains*
+
+# ===============================
+# Unity Cloud Build
+# ===============================
+UnityCloudBuild/
+
+# ===============================
+# Crashlytics / Firebase
+# ===============================
+crashlytics-build.properties
