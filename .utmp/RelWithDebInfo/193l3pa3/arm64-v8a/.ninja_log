@@ -1,0 +1,10 @@
+# ninja log v5
+28	1069	7912185916672486	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	bd495ae84f066d77
+23	1095	7912185916933843	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	ba780e789367eb95
+40	1107	7912185917004211	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	ebfb667bdd109c23
+18	1117	7912185917132644	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	97cb4b2b97c7a2c6
+13	1156	7912185917516406	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	5e971cf82589cd44
+55	1304	7912185919021401	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	347c3af3786a3cb9
+35	1312	7912185919110145	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	7ef1f27cd916eba4
+0	1384	7912185919790033	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	267b24f5abdbc847
+1384	1512	7912185921137778	C:/gameWorld/RoadCrossy/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/193l3pa3/obj/arm64-v8a/libgame.so	9d8e9e46b355ac78

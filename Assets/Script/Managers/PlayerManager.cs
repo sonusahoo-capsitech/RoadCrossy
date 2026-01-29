@@ -1,0 +1,196 @@
+using UnityEngine;
+using System.Collections;
+
+
+
+namespace Gamewise.crossyroad
+{
+    public class PlayerManager : MonoBehaviour
+    {
+
+
+        [Header("Movement Limits - Mobile")]
+        public float mobileMinX = -3f;
+        public float mobileMaxX = 3f;
+        public float mobileMinZ = -2f;
+
+        [Header("Movement Limits - Tablet")]
+        public float tabletMinX = -5f;
+        public float tabletMaxX = 5f;
+        public float tabletMinZ = -3f;
+
+        float minX, maxX, minZ;
+
+
+
+        [Header("Grid Settings")]
+        public float moveDistance = 1f;
+
+        [Header("Jump Settings")]
+        public float jumpHeight = 0.2f;
+        public float jumpDuration = 0.10f;
+
+        private bool isJumping = false;
+        public static PlayerManager Instance;
+
+        public GameObject updownButton;
+
+        CameraFollow cam;
+
+        void Start()
+        {
+            Instance = this;
+
+
+            cam = Camera.main.GetComponent<CameraFollow>();
+            // updownButton = GetComponent<Image>();
+            updownButton.SetActive(true);
+            SetMovementLimits();
+
+        }
+
+        void SetMovementLimits()
+        {
+            bool isTablet = Mathf.Max(Screen.width, Screen.height) >= 2000;
+
+            if (isTablet)
+            {
+                minX = tabletMinX;
+                maxX = tabletMaxX;
+                minZ = tabletMinZ;
+            }
+            else
+            {
+                minX = mobileMinX;
+                maxX = mobileMaxX;
+                minZ = mobileMinZ;
+            }
+        }
+
+
+        bool CanMove(Vector3 direction)
+        {
+            Vector3 targetPos = transform.position + direction * moveDistance;
+
+            if (targetPos.x < minX || targetPos.x > maxX)
+                return false;
+
+            if (direction == Vector3.back && targetPos.z < minZ)
+                return false;
+    
+            return true;
+        }
+
+
+
+
+        void Update()
+        {
+            if (isJumping) return;
+
+            if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow) && CanMove(Vector3.forward))
+                StartCoroutine(Jump(Vector3.forward));
+
+            else if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow) && CanMove(Vector3.back))
+                StartCoroutine(Jump(Vector3.back));
+
+            else if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow) && CanMove(Vector3.left))
+                StartCoroutine(Jump(Vector3.left));
+
+            else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow) && CanMove(Vector3.right))
+                StartCoroutine(Jump(Vector3.right));
+        }
+
+
+
+        public void MoveUp()
+        {
+            if (!isJumping && CanMove(Vector3.forward))
+                StartCoroutine(Jump(Vector3.forward));
+        }
+
+        public void MoveDown()
+        {
+            if (!isJumping && CanMove(Vector3.back))
+                StartCoroutine(Jump(Vector3.back));
+        }
+
+        public void MoveLeft()
+        {
+            if (!isJumping && CanMove(Vector3.left))
+                StartCoroutine(Jump(Vector3.left));
+        }
+
+        public void MoveRight()
+        {
+            if (!isJumping && CanMove(Vector3.right))
+                StartCoroutine(Jump(Vector3.right));
+        }
+
+
+
+
+        IEnumerator Jump(Vector3 direction)
+        {
+            isJumping = true;
+
+            if (direction == Vector3.left)
+                cam.MoveSide(-1);
+            else if (direction == Vector3.right)
+                cam.MoveSide(1);
+            else
+                cam.ResetSide();
+
+
+            Vector3 startPos = transform.position;
+            Vector3 endPos = startPos + direction * moveDistance;
+
+            float elapsed = 0f;
+
+            while (elapsed < jumpDuration)
+            {
+                elapsed += Time.deltaTime;
+                float t = elapsed / jumpDuration;
+
+                // Horizontal movement
+                Vector3 horizontal = Vector3.Lerp(startPos, endPos, t);
+
+                // Vertical jump arc
+                float height = Mathf.Sin(t * Mathf.PI) * jumpHeight;
+
+                transform.position = new Vector3(
+                    horizontal.x,
+                    startPos.y + height,
+                    horizontal.z
+                );
+
+                yield return null;
+            }
+
+            transform.position = endPos;
+            isJumping = false;
+            cam.ResetSide();
+
+        }
+
+        void OnCollisionEnter(Collision collision)
+        {
+            if (collision.gameObject.CompareTag("Car"))
+            {
+                // Debug.Log("Collided with Car! Game Over.");
+                MenuUiManager.Instance.EndGame();
+
+            }
+            else if (collision.gameObject.CompareTag("Finish"))
+            {
+                // Debug.Log("Reached Goal! You Win!");
+                MenuUiManager.Instance.WinGame();   
+            }
+            else if (collision.gameObject.CompareTag("River"))
+            {
+                Debug.Log("Fell into Water! Game Over.");
+                MenuUiManager.Instance.EndGame();
+            }
+        }
+    }
+}
