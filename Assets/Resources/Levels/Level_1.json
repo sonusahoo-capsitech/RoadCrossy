@@ -1,0 +1,16 @@
+{
+  "levelId": 1,
+  "gridWidth": 9,
+  "timeLimit": 60,
+  "lanes": [
+    { "type": "Grass" },
+    { "type": "Road", "carSpeed": 3, "spawnRate": 2.5 },
+    { "type": "Road", "carSpeed": 3.5, "spawnRate": 4.0 },
+    { "type": "Grass" },
+    { "type": "River", "logSpeed": 2, "gap": 2 },
+    { "type": "River", "logSpeed": 2.5, "gap": 3 },
+    { "type": "Road", "carSpeed": 50, "spawnRate": 3.0 },
+    { "type": "Rail", "trainDelay": 5 },
+    { "type": "Finish" }
+  ]
+}
