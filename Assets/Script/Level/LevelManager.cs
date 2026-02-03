@@ -109,7 +109,7 @@ namespace Gamewise.crossyroad
                 }
                 else if (lane.type == "River")
                 {
-                    laneObj = Instantiate(riverLanePrefab, new Vector3(0, 0, zPos), Quaternion.identity);
+                    laneObj = Instantiate(riverLanePrefab, new Vector3(0, 0.6123f, zPos), Quaternion.identity);
                     laneObj.GetComponent<RiverLane>().Init(lane.logSpeed, lane.gap);
                 }
                 else if (lane.type == "Rail")

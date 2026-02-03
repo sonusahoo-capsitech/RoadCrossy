@@ -64,11 +64,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 7734d339bd1434149a4f7c490a38e8bf, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.6123
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 7734d339bd1434149a4f7c490a38e8bf, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 59.9
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 7734d339bd1434149a4f7c490a38e8bf, type: 3}
       propertyPath: m_LocalRotation.w
@@ -155,42 +155,7 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7734d339bd1434149a4f7c490a38e8bf, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7747606766800454614}
-    - targetCorrespondingSourceObject: {fileID: -3639470066210709979, guid: 7734d339bd1434149a4f7c490a38e8bf, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 576118105071416128}
   m_SourcePrefab: {fileID: 100100000, guid: 7734d339bd1434149a4f7c490a38e8bf, type: 3}
---- !u!1 &4029113808024164017 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: -3639470066210709979, guid: 7734d339bd1434149a4f7c490a38e8bf, type: 3}
-  m_PrefabInstance: {fileID: 8832764933305338004}
-  m_PrefabAsset: {fileID: 0}
---- !u!54 &576118105071416128
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4029113808024164017}
-  serializedVersion: 4
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 0
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
 --- !u!1 &8526757999505323461 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 7734d339bd1434149a4f7c490a38e8bf, type: 3}
@@ -215,8 +180,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 36.30113, y: 1.7190235, z: 3.150404}
-  m_Center: {x: -3.2142925, y: 0.008558065, z: 0}
+  m_Size: {x: 36.30113, y: 1.7190235, z: 3.48}
+  m_Center: {x: -3.2142925, y: 0, z: 0}
 --- !u!114 &7747606766800454614
 MonoBehaviour:
   m_ObjectHideFlags: 0
