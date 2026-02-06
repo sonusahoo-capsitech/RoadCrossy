@@ -52,7 +52,7 @@ namespace Gamewise.crossyroad
                 // float localZ = Random.Range(-halfZ, halfZ);
 
                 // Z stays 0 (center of river)
-                Vector3 localPos = new Vector3(localX, -0.3f, 0f);
+                Vector3 localPos = new Vector3(localX, -0.793f, 0f);
                 // Debug.Log("Spawning stone at local Z: " + localPos);
 
                 // Convert local → world

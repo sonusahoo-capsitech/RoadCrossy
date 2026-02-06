@@ -247,26 +247,22 @@ namespace Gamewise.crossyroad
                 MenuUiManager.Instance.EndGame();
 
             }
-            else if (collision.gameObject.CompareTag(stoneTag))
-            {
-                if (!snapToStoneCenter) return;
-                if (isJumping)
-                {
-                    pendingStone = collision.collider;
-                }
-                else
-                {
-                    SnapToStone(collision.collider);
-                    isOnStone = true;
-                    pendingRestoreY = false;
-                }
-            }
-            // else if (collision.gameObject.CompareTag("Finish"))
+            // else if (collision.gameObject.CompareTag(stoneTag))
             // {
-            //     // Debug.Log("Reached Goal! You Win!");
-            //     MenuUiManager.Instance.WinGame();
+            //     if (!snapToStoneCenter) return;
+            //     if (isJumping)
+            //     {
+            //         pendingStone = collision.collider;
+            //     }
+            //     else
+            //     {
+            //         SnapToStone(collision.collider);
+            //         isOnStone = true;
+            //         pendingRestoreY = false;
+            //     }
             // }
-            else if (collision.gameObject.CompareTag("River"))
+
+            if (collision.gameObject.CompareTag("River"))
             {
                 Debug.Log("Fell into Water! Game Over.");
                 MenuUiManager.Instance.EndGame();

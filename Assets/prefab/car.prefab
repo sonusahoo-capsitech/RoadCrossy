@@ -116,7 +116,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   movementDirection: {fileID: 6463913134550658638}
-  destroyDistance: 60
+  destroyDistance: 100
 --- !u!54 &6825961890228676441
 Rigidbody:
   m_ObjectHideFlags: 0
