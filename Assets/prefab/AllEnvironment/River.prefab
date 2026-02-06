@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spawnArea: {fileID: 9015909129860706175}
-  stonePrefab: {fileID: 6682627735431056277, guid: d272a1e2c848de74c977e0bf46999153, type: 3}
+  stonePrefab: {fileID: 9144872387300984769, guid: a79b9b3172b784a4b90f74ce60df90ba, type: 3}
   stonesPerWave: 3
   spawnInterval: 1.5
   stoneLifeTime: 2
@@ -159,7 +159,36 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7734d339bd1434149a4f7c490a38e8bf, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7747606766800454614}
+    - targetCorrespondingSourceObject: {fileID: -3639470066210709979, guid: 7734d339bd1434149a4f7c490a38e8bf, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 103682873370681002}
   m_SourcePrefab: {fileID: 100100000, guid: 7734d339bd1434149a4f7c490a38e8bf, type: 3}
+--- !u!1 &4029113808024164017 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -3639470066210709979, guid: 7734d339bd1434149a4f7c490a38e8bf, type: 3}
+  m_PrefabInstance: {fileID: 8832764933305338004}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &103682873370681002
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4029113808024164017}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 1
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 24.999996, y: 0.125, z: 0.9999999}
+  m_Center: {x: 0, y: 0.0625, z: 0}
 --- !u!1 &8526757999505323461 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 7734d339bd1434149a4f7c490a38e8bf, type: 3}
@@ -181,7 +210,7 @@ BoxCollider:
     m_Bits: 0
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
-  m_ProvidesContacts: 0
+  m_ProvidesContacts: 1
   m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 36.30113, y: 1.7190235, z: 3.48}
