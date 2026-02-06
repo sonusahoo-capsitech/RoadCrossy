@@ -24,6 +24,7 @@ public class MenuUiManager : MonoBehaviour
 
     public GameObject gameOverPanel;
     public GameObject winPanel;
+    public GameObject background;
 
     public static MenuUiManager Instance { get; private set; }
 
@@ -43,6 +44,7 @@ public class MenuUiManager : MonoBehaviour
     }
     void Start()
     {
+        background.SetActive(true);
         play.gameObject.SetActive(true);
         levelSelectPanel.gameObject.SetActive(false);
         winPanel.SetActive(false);
@@ -61,7 +63,11 @@ public class MenuUiManager : MonoBehaviour
     public void OnPlayButtonPressed()
     {
         play.gameObject.SetActive(false);
-        levelSelectPanel.gameObject.SetActive(true);
+        levelSelectPanel.gameObject.SetActive(false);
+        if (Background != null) Background.gameObject.SetActive(false);
+        if (background != null) background.SetActive(false);
+        StartGame();
+        SceneManager.LoadScene("GamePlay");
     }
 
 
@@ -121,11 +127,28 @@ public class MenuUiManager : MonoBehaviour
 
     }
 
+    public void QuitGame()
+    {
+        Application.Quit();
+    }
+
+    public void GoToMenu()
+    {
+        Time.timeScale = 1f;
+        gameOverPanel.SetActive(false); 
+        background.SetActive(true);
+        play.gameObject.SetActive(true);
+        SceneManager.LoadScene(0);
+        SetState(GameState.Menu);
+    }
+
     public void RestartGame()
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         gameOverPanel.SetActive(false);
+        winPanel.SetActive(false);
+        SetState(GameState.Playing);
     }
 
     public void LoadLevel(int levelIndex)
@@ -147,5 +170,9 @@ public class MenuUiManager : MonoBehaviour
     {
         return CurrentState == GameState.Playing;
     }
+
+
+
+
 
 }

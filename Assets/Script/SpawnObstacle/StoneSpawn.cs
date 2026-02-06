@@ -148,11 +148,11 @@ namespace Gamewise.crossyroad
 
                 // Z stays 0 (center of river)
                 Vector3 localPos = new Vector3(localX, 2f, 0f);
-                Debug.Log("Spawning stone at local Z: " + localPos);
+                // Debug.Log("Spawning stone at local Z: " + localPos);
 
                 // Convert local → world
                 Vector3 worldPos = spawnArea.TransformPoint(localPos);
-                Debug.Log("Spawning stone at world Z: " + worldPos);
+                // Debug.Log("Spawning stone at world Z: " + worldPos);
 
                 GameObject stone = Instantiate(
                     stonePrefab,

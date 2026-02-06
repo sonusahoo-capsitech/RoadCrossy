@@ -32,7 +32,7 @@ namespace Gamewise.crossyroad
             );
 
             Vector3 targetPos = new Vector3(
-                currentSideOffset,
+                player.position.x + currentSideOffset,
                 player.position.y + yOffset,
                 player.position.z + zOffset
             );
