@@ -1,12 +1,5 @@
-
-
-
-
 using UnityEngine;
 using System.Collections;
-
-
-
 namespace Gamewise.crossyroad
 {
     public class PlayerManager : MonoBehaviour
@@ -38,12 +31,22 @@ namespace Gamewise.crossyroad
         public float jumpHeight = 0.2f;
         public float jumpDuration = 0.10f;
 
+        [Header("Stone Snap")]
+        public string stoneTag = "Stone";
+        public bool snapToStoneCenter = true;
+        public float stoneSurfaceOffset = 0.02f;
+        public Collider playerCollider;
+
         private bool isJumping = false;
+        private bool isOnStone = false;
+        private bool pendingRestoreY = false;
+        private float baseY = 0f;
         public static PlayerManager Instance;
 
         public GameObject updownButton;
 
         CameraFollow cam;
+        Collider pendingStone;
 
         void Start()
         {
@@ -54,6 +57,8 @@ namespace Gamewise.crossyroad
             // updownButton = GetComponent<Image>();
             updownButton.SetActive(true);
             SetMovementLimits();
+            ResolvePlayerCollider();
+            baseY = transform.position.y;
 
         }
 
@@ -176,11 +181,62 @@ namespace Gamewise.crossyroad
             }
 
             transform.position = endPos;
+            TrySnapToPendingStone();
+            RestoreYIfNeeded();
             isJumping = false;
             cam.ResetSide();
 
             UpdateBackMoveCount(direction);
 
+        }
+
+        void TrySnapToPendingStone()
+        {
+            if (!snapToStoneCenter || pendingStone == null) return;
+            if (IsOverStoneXZ(pendingStone))
+            {
+                SnapToStone(pendingStone);
+                isOnStone = true;
+                pendingRestoreY = false;
+            }
+            pendingStone = null;
+        }
+
+        bool IsOverStoneXZ(Collider stoneCollider)
+        {
+            Bounds bounds = stoneCollider.bounds;
+            Vector3 pos = transform.position;
+            return pos.x >= bounds.min.x && pos.x <= bounds.max.x
+                && pos.z >= bounds.min.z && pos.z <= bounds.max.z;
+        }
+
+        void SnapToStone(Collider stoneCollider)
+        {
+            Vector3 center = stoneCollider.bounds.center;
+            Vector3 pos = transform.position;
+            pos.x = center.x;
+            pos.z = center.z;
+            transform.position = pos;
+
+            if (playerCollider == null) return;
+
+            float stoneTopY = stoneCollider.bounds.max.y + stoneSurfaceOffset;
+            float playerBottomY = playerCollider.bounds.min.y;
+            float deltaY = stoneTopY - playerBottomY;
+            transform.position += new Vector3(0f, deltaY, 0f);
+        }
+
+        void RestoreYIfNeeded()
+        {
+            if (isOnStone) return;
+            if (pendingRestoreY)
+            {
+                pendingRestoreY = false;
+            }
+
+            Vector3 pos = transform.position;
+            pos.y = baseY;
+            transform.position = pos;
         }
 
         void OnCollisionEnter(Collision collision)
@@ -191,15 +247,60 @@ namespace Gamewise.crossyroad
                 MenuUiManager.Instance.EndGame();
 
             }
-            else if (collision.gameObject.CompareTag("Finish"))
+            else if (collision.gameObject.CompareTag(stoneTag))
             {
-                // Debug.Log("Reached Goal! You Win!");
-                MenuUiManager.Instance.WinGame();
+                if (!snapToStoneCenter) return;
+                if (isJumping)
+                {
+                    pendingStone = collision.collider;
+                }
+                else
+                {
+                    SnapToStone(collision.collider);
+                    isOnStone = true;
+                    pendingRestoreY = false;
+                }
             }
+            // else if (collision.gameObject.CompareTag("Finish"))
+            // {
+            //     // Debug.Log("Reached Goal! You Win!");
+            //     MenuUiManager.Instance.WinGame();
+            // }
             else if (collision.gameObject.CompareTag("River"))
             {
                 Debug.Log("Fell into Water! Game Over.");
                 MenuUiManager.Instance.EndGame();
+            }
+        }
+
+        void OnCollisionExit(Collision collision)
+        {
+            if (pendingStone != null && collision.collider == pendingStone)
+            {
+                pendingStone = null;
+            }
+
+            if (collision.gameObject.CompareTag(stoneTag))
+            {
+                isOnStone = false;
+                if (isJumping)
+                {
+                    pendingRestoreY = true;
+                }
+                else
+                {
+                    RestoreYIfNeeded();
+                }
+            }
+        }
+
+        void ResolvePlayerCollider()
+        {
+            if (playerCollider != null) return;
+            playerCollider = GetComponent<Collider>();
+            if (playerCollider == null)
+            {
+                playerCollider = GetComponentInChildren<Collider>();
             }
         }
 

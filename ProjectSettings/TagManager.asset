@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Car
   - River
+  - Stone
   layers:
   - Default
   - TransparentFX
