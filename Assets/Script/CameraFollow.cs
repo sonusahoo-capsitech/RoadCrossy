@@ -19,6 +19,19 @@ namespace Gamewise.crossyroad
 
         private float currentSideOffset = 0f;
         private float targetSideOffset = 0f;
+        private float lockedY;
+
+        void Start()
+        {
+            if (player)
+            {
+                lockedY = player.position.y + yOffset;
+            }
+            else
+            {
+                lockedY = transform.position.y;
+            }
+        }
 
         void LateUpdate()
         {
@@ -33,7 +46,7 @@ namespace Gamewise.crossyroad
 
             Vector3 targetPos = new Vector3(
                 player.position.x + currentSideOffset,
-                player.position.y + yOffset,
+                lockedY,
                 player.position.z + zOffset
             );
 
