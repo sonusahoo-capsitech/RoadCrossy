@@ -45,6 +45,10 @@ namespace Gamewise.crossyroad
         public int lanesBehind = 6;
         public int maxSameTypeStreak = 2;
 
+        [Header("Performance")]
+        public int spawnBudgetPerFrame = 3;
+        public bool cacheLaneLengths = true;
+
         [Header("Lane Weights")]
         [Range(0f, 1f)] public float grassWeight = 0.35f;
         [Range(0f, 1f)] public float roadWeight = 0.40f;
@@ -66,9 +70,12 @@ namespace Gamewise.crossyroad
         private LaneType lastType = LaneType.Grass;
         private int sameTypeCount = 0;
         private readonly Queue<SpawnedLane> spawnedLanes = new Queue<SpawnedLane>();
+        private readonly Dictionary<GameObject, float> laneLengthCache = new Dictionary<GameObject, float>(16);
+        private bool hasLanesParent = false;
 
         void Start()
         {
+            hasLanesParent = lanesParent != null;
             if (useInfinitePath)
             {
                 InitInfinitePath();
@@ -157,21 +164,26 @@ namespace Gamewise.crossyroad
 
         void SpawnAheadIfNeeded()
         {
+            int budget = Mathf.Max(1, spawnBudgetPerFrame);
+            int spawned = 0;
+
             if (usePrefabArray && pathPrefabs != null && pathPrefabs.Length > 0)
             {
                 float distanceToEnd = nextZPos - player.position.z;
-                while (distanceToEnd < spawnTriggerDistance)
+                while (distanceToEnd < spawnTriggerDistance && spawned < budget)
                 {
                     SpawnLaneFromArray();
+                    spawned++;
                     distanceToEnd = nextZPos - player.position.z;
                 }
             }
             else
             {
                 float targetZ = player.position.z + lanesAhead * laneLength;
-                while (nextZPos < targetZ)
+                while (nextZPos < targetZ && spawned < budget)
                 {
                     SpawnLane(PickLaneType());
+                    spawned++;
                 }
             }
         }
@@ -210,50 +222,6 @@ namespace Gamewise.crossyroad
             CreateLanes(data);
         }
 
-        // void CreateLanes(LevelData data)
-        // {
-        //     float zPos = 0f;
-
-        //     foreach (LaneData lane in data.lanes)
-        //     {
-        //         if (lane.type == "Grass")
-        //         {
-        //             Instantiate(grassLanePrefab, new Vector3(0, 0, zPos), Quaternion.identity);
-        //             float laneZSize = grassLanePrefab.GetComponent<Renderer>().bounds.size.z;
-        //             zPos += laneZSize;
-        //         }
-        //         else if (lane.type == "Road")
-        //         {
-        //             GameObject obj = Instantiate(roadLanePrefab, new Vector3(0, 0, zPos), Quaternion.identity);
-        //             obj.GetComponent<RoadLane>().Init(lane.carSpeed, lane.spawnRate);
-        //              float laneZSize = grassLanePrefab.GetComponent<Renderer>().bounds.size.z;
-        //             zPos += laneZSize;
-        //         }
-        //         else if (lane.type == "River")
-        //         {
-        //             GameObject obj = Instantiate(riverLanePrefab, new Vector3(0, 0, zPos), Quaternion.identity);
-        //             obj.GetComponent<RiverLane>().Init(lane.logSpeed, lane.gap);
-        //              float laneZSize = grassLanePrefab.GetComponent<Renderer>().bounds.size.z;
-        //             zPos += laneZSize;
-        //         }
-        //         else if (lane.type == "Rail")
-        //         {
-        //             GameObject obj = Instantiate(railLanePrefab, new Vector3(0, 0, zPos), Quaternion.identity);
-        //             obj.GetComponent<RailLane>().Init(lane.trainDelay);
-        //              float laneZSize = grassLanePrefab.GetComponent<Renderer>().bounds.size.z;
-        //             zPos += laneZSize;
-        //         }
-        //         else if (lane.type == "Finish")
-        //         {
-        //             Instantiate(finishLanePrefab, new Vector3(0, 0, zPos), Quaternion.identity);
-        //              float laneZSize = grassLanePrefab.GetComponent<Renderer>().bounds.size.z;
-        //             zPos += laneZSize;
-        //         }
-
-        //         // zPos += laneLength;
-        //     }
-        // }
-
         void CreateLanes(LevelData data)
         {
             float zPos = 0f;
@@ -261,44 +229,55 @@ namespace Gamewise.crossyroad
             foreach (LaneData lane in data.lanes)
             {
                 GameObject laneObj = null;
+                GameObject prefab = null;
+                Vector3 pos = new Vector3(0, 0, zPos);
 
                 if (lane.type == "Grass")
                 {
-                    laneObj = Instantiate(grassLanePrefab, new Vector3(0, 0, zPos), Quaternion.identity);
+                    prefab = grassLanePrefab;
+                    pos.y = grassLaneY;
                 }
                 else if (lane.type == "Road")
                 {
-                    laneObj = Instantiate(roadLanePrefab, new Vector3(0, 0, zPos), Quaternion.identity);
-                    laneObj.GetComponent<RoadLane>().Init(lane.carSpeed, lane.spawnRate);
+                    prefab = roadLanePrefab;
+                    pos.y = roadLaneY;
                 }
                 else if (lane.type == "River")
                 {
-                    laneObj = Instantiate(riverLanePrefab, new Vector3(0, 0.6123f, zPos), Quaternion.identity);
-                    laneObj.GetComponent<RiverLane>().Init(lane.logSpeed, lane.gap);
+                    prefab = riverLanePrefab;
+                    pos.y = riverLaneY;
                 }
                 else if (lane.type == "Rail")
                 {
-                    laneObj = Instantiate(railLanePrefab, new Vector3(0, 0, zPos), Quaternion.identity);
-                    laneObj.GetComponent<RailLane>().Init(lane.trainDelay);
+                    prefab = railLanePrefab;
+                    pos.y = railLaneY;
                 }
                 else if (lane.type == "Finish")
                 {
-                    laneObj = Instantiate(finishLanePrefab, new Vector3(0, 0, zPos), Quaternion.identity);
+                    prefab = finishLanePrefab;
+                }
+
+                if (prefab != null)
+                {
+                    laneObj = Instantiate(prefab, pos, Quaternion.identity);
                 }
 
                 if (laneObj != null)
                 {
-                    Renderer renderer = laneObj.GetComponentInChildren<Renderer>();
+                    if (prefab == roadLanePrefab)
+                    {
+                        laneObj.GetComponent<RoadLane>().Init(lane.carSpeed, lane.spawnRate);
+                    }
+                    else if (prefab == riverLanePrefab)
+                    {
+                        laneObj.GetComponent<RiverLane>().Init(lane.logSpeed, lane.gap);
+                    }
+                    else if (prefab == railLanePrefab)
+                    {
+                        laneObj.GetComponent<RailLane>().Init(lane.trainDelay);
+                    }
 
-                    if (renderer != null)
-                    {
-                        zPos += renderer.bounds.size.z;
-                    }
-                    else
-                    {
-                        Debug.LogWarning("No Renderer found on lane, using fallback length");
-                        zPos += laneLength;
-                    }
+                    zPos += GetLaneLength(laneObj, prefab);
                 }
             }
         }
@@ -335,13 +314,13 @@ namespace Gamewise.crossyroad
             }
 
             Vector3 pos = new Vector3(0f, yPos, nextZPos);
-            GameObject laneObj = lanesParent != null
+            GameObject laneObj = hasLanesParent
                 ? Instantiate(prefab, pos, Quaternion.identity, lanesParent)
                 : Instantiate(prefab, pos, Quaternion.identity);
 
             InitLane(laneObj, type);
 
-            float laneSize = GetLaneLength(laneObj);
+            float laneSize = GetLaneLength(laneObj, prefab);
             spawnedLanes.Enqueue(new SpawnedLane(laneObj, nextZPos, laneSize));
             nextZPos += laneSize;
         }
@@ -368,13 +347,13 @@ namespace Gamewise.crossyroad
 
             float yPos = usePrefabY ? prefab.transform.position.y : 0f;
             Vector3 pos = new Vector3(0f, yPos, nextZPos);
-            GameObject laneObj = lanesParent != null
+            GameObject laneObj = hasLanesParent
                 ? Instantiate(prefab, pos, Quaternion.identity, lanesParent)
                 : Instantiate(prefab, pos, Quaternion.identity);
 
             InitLaneFromComponents(laneObj);
 
-            float laneSize = GetLaneLength(laneObj);
+            float laneSize = GetLaneLength(laneObj, prefab);
             spawnedLanes.Enqueue(new SpawnedLane(laneObj, nextZPos, laneSize));
             nextZPos += laneSize;
         }
@@ -432,9 +411,14 @@ namespace Gamewise.crossyroad
             }
         }
 
-        float GetLaneLength(GameObject laneObj)
+        float GetLaneLength(GameObject laneObj, GameObject prefab)
         {
             if (laneObj == null) return laneLength;
+
+            if (cacheLaneLengths && prefab != null && laneLengthCache.TryGetValue(prefab, out float cached))
+            {
+                return cached;
+            }
 
             Renderer renderer = laneObj.GetComponentInChildren<Renderer>();
             if (renderer == null)
@@ -444,7 +428,14 @@ namespace Gamewise.crossyroad
             }
 
             float size = renderer.bounds.size.z;
-            return size > 0.01f ? size : laneLength;
+            float length = size > 0.01f ? size : laneLength;
+
+            if (cacheLaneLengths && prefab != null)
+            {
+                laneLengthCache[prefab] = length;
+            }
+
+            return length;
         }
 
         LaneType PickLaneType()

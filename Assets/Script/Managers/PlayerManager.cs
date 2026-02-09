@@ -1,11 +1,10 @@
 using UnityEngine;
 using System.Collections;
+
 namespace Gamewise.crossyroad
 {
     public class PlayerManager : MonoBehaviour
     {
-
-
         [Header("Movement Limits - Mobile")]
         public float mobileMinX = -3f;
         public float mobileMaxX = 3f;
@@ -16,9 +15,9 @@ namespace Gamewise.crossyroad
         public float tabletMaxX = 5f;
         public float tabletMinZ = -3f;
 
-        float minX, maxX, minZ;
-
-
+        private float minX;
+        private float maxX;
+        private float minZ;
 
         [Header("Grid Settings")]
         public float moveDistance = 1f;
@@ -39,27 +38,23 @@ namespace Gamewise.crossyroad
 
         private bool isJumping = false;
         private bool isOnStone = false;
-        private bool pendingRestoreY = false;
         private float baseY = 0f;
         public static PlayerManager Instance;
 
         public GameObject updownButton;
 
-        CameraFollow cam;
-        Collider pendingStone;
+        private CameraFollow cam;
+        private Collider pendingStone;
 
         void Start()
         {
             Instance = this;
 
-
             cam = Camera.main.GetComponent<CameraFollow>();
-            // updownButton = GetComponent<Image>();
             updownButton.SetActive(true);
             SetMovementLimits();
             ResolvePlayerCollider();
             baseY = transform.position.y;
-
         }
 
         void SetMovementLimits()
@@ -101,47 +96,67 @@ namespace Gamewise.crossyroad
         {
             if (isJumping) return;
 
-            if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow) && CanMove(Vector3.forward))
-                StartCoroutine(Jump(Vector3.forward));
-
-            else if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow) && CanMove(Vector3.back) && CanMoveBack())
-                StartCoroutine(Jump(Vector3.back));
-
-            else if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow) && CanMove(Vector3.left))
-                StartCoroutine(Jump(Vector3.left));
-
-            else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow) && CanMove(Vector3.right))
-                StartCoroutine(Jump(Vector3.right));
+            if (TryGetKeyboardDirection(out Vector3 direction))
+            {
+                TryMove(direction);
+            }
         }
-
-
 
         public void MoveUp()
         {
-            if (!isJumping && CanMove(Vector3.forward))
-                StartCoroutine(Jump(Vector3.forward));
+            TryMove(Vector3.forward);
         }
 
         public void MoveDown()
         {
-            if (!isJumping && CanMove(Vector3.back) && CanMoveBack())
-                StartCoroutine(Jump(Vector3.back));
+            TryMove(Vector3.back);
         }
 
         public void MoveLeft()
         {
-            if (!isJumping && CanMove(Vector3.left))
-                StartCoroutine(Jump(Vector3.left));
+            TryMove(Vector3.left);
         }
 
         public void MoveRight()
         {
-            if (!isJumping && CanMove(Vector3.right))
-                StartCoroutine(Jump(Vector3.right));
+            TryMove(Vector3.right);
         }
 
+        void TryMove(Vector3 direction)
+        {
+            if (isJumping) return;
+            if (!CanMove(direction)) return;
+            if (direction == Vector3.back && !CanMoveBack()) return;
 
+            StartCoroutine(Jump(direction));
+        }
 
+        bool TryGetKeyboardDirection(out Vector3 direction)
+        {
+            if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
+            {
+                direction = Vector3.forward;
+                return true;
+            }
+            if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
+            {
+                direction = Vector3.back;
+                return true;
+            }
+            if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
+            {
+                direction = Vector3.left;
+                return true;
+            }
+            if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
+            {
+                direction = Vector3.right;
+                return true;
+            }
+
+            direction = Vector3.zero;
+            return false;
+        }
 
         IEnumerator Jump(Vector3 direction)
         {
@@ -197,7 +212,6 @@ namespace Gamewise.crossyroad
             {
                 SnapToStone(pendingStone);
                 isOnStone = true;
-                pendingRestoreY = false;
             }
             pendingStone = null;
         }
@@ -229,10 +243,6 @@ namespace Gamewise.crossyroad
         void RestoreYIfNeeded()
         {
             if (isOnStone) return;
-            if (pendingRestoreY)
-            {
-                pendingRestoreY = false;
-            }
 
             Vector3 pos = transform.position;
             pos.y = baseY;
@@ -247,22 +257,20 @@ namespace Gamewise.crossyroad
                 MenuUiManager.Instance.EndGame();
 
             }
-            // else if (collision.gameObject.CompareTag(stoneTag))
-            // {
-            //     if (!snapToStoneCenter) return;
-            //     if (isJumping)
-            //     {
-            //         pendingStone = collision.collider;
-            //     }
-            //     else
-            //     {
-            //         SnapToStone(collision.collider);
-            //         isOnStone = true;
-            //         pendingRestoreY = false;
-            //     }
-            // }
-
-            if (collision.gameObject.CompareTag("River"))
+            else if (collision.gameObject.CompareTag(stoneTag))
+            {
+                if (!snapToStoneCenter) return;
+                if (isJumping)
+                {
+                    pendingStone = collision.collider;
+                }
+                else
+                {
+                    SnapToStone(collision.collider);
+                    isOnStone = true;
+                }
+            }
+            else if (collision.gameObject.CompareTag("River"))
             {
                 Debug.Log("Fell into Water! Game Over.");
                 MenuUiManager.Instance.EndGame();
@@ -279,11 +287,7 @@ namespace Gamewise.crossyroad
             if (collision.gameObject.CompareTag(stoneTag))
             {
                 isOnStone = false;
-                if (isJumping)
-                {
-                    pendingRestoreY = true;
-                }
-                else
+                if (!isJumping)
                 {
                     RestoreYIfNeeded();
                 }
@@ -302,8 +306,7 @@ namespace Gamewise.crossyroad
 
         bool CanMoveBack()
         {
-            if (maxBackwardMoves <= 0) return false;
-            return backwardMovesUsed < maxBackwardMoves;
+            return maxBackwardMoves > 0 && backwardMovesUsed < maxBackwardMoves;
         }
 
         void UpdateBackMoveCount(Vector3 direction)

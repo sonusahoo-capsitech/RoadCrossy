@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -17,19 +16,13 @@ namespace GameWise.crossyroad
         List<int> played => ProgressManager.data.playedLevels;
         List<int> completedLevel => ProgressManager.data.completedLevels;
 
-        // public TextAsset levelData;
         public GameObject levelsParent;
-        // void Start() {
-        //     if (levelData != null) {
-        //         string[] lines = levelData.text.Split(new[] { '\r', '\n' }, System.StringSplitOptions.RemoveEmptyEntries);
-        //         foreach (string line in lines) {
-        //             Debug.Log(line);
-        //         }
-        //     } else {
-        //         Debug.LogError("Level data file is not assigned.");
-        //     }
-        // }
         public static LevelExtractor Instance;
+
+        private bool buttonsInitialized = false;
+        private Button[] cachedButtons;
+        private readonly Dictionary<int, Transform> levelByNumber = new Dictionary<int, Transform>(64);
+        private readonly HashSet<int> tempLevelSet = new HashSet<int>();
 
         void Awake()
         {
@@ -51,32 +44,34 @@ namespace GameWise.crossyroad
 
         public void SetupLevelButtons()
         {
-            Button[] buttons = levelsParent.GetComponentsInChildren<Button>(true);
+            if (buttonsInitialized || levelsParent == null) return;
 
-            foreach (Button btn in buttons)
+            CacheLevelTransforms();
+            cachedButtons = levelsParent.GetComponentsInChildren<Button>(true);
+
+            for (int i = 0; i < cachedButtons.Length; i++)
             {
+                Button btn = cachedButtons[i];
+                int levelNumber = ParseLevelNumber(btn.transform);
+                if (levelNumber <= 0) continue;
+
+                int capturedLevel = levelNumber;
                 btn.onClick.AddListener(() =>
                 {
-                    string parentLevelName = btn.transform.parent.parent.name;
-
-                    string number = parentLevelName.Replace("Level_", "");
-
-                    Debug.Log("Selected Level: " + number);
-
-                    PlayerPrefs.SetInt("CurrentLevel", int.Parse(number));
+                    PlayerPrefs.SetInt("CurrentLevel", capturedLevel);
                     PlayerPrefs.Save();
                     StartLevel();
                     SceneManager.LoadScene("GamePlay");
 
                 });
             }
+
+            buttonsInitialized = true;
         }
 
 
         public void StartLevel()
         {
-            SetupLevelButtons();
-
             MenuUiManager.Instance.play.gameObject.SetActive(false);
             MenuUiManager.Instance.levelSelectPanel.gameObject.SetActive(false);
             MenuUiManager.Instance.Background.gameObject.SetActive(false);
@@ -85,15 +80,15 @@ namespace GameWise.crossyroad
 
         public void UpdateLevelLocks()
         {
-            HashSet<int> completedSet = new HashSet<int>(played);
+            if (levelsParent == null) return;
+            if (!buttonsInitialized) SetupLevelButtons();
+            tempLevelSet.Clear();
+            tempLevelSet.UnionWith(played);
 
             // Loop through all available levels (1 to 99)
             for (int i = 1; i <= levelsParent.transform.childCount; i++)
             {
-                string levelName = "Level_" + i;
-                Transform levelTransform = levelsParent.transform.Find(levelName);
-
-                if (levelTransform == null)
+                if (!levelByNumber.TryGetValue(i, out Transform levelTransform))
                 {
                     continue;
                 }
@@ -101,7 +96,7 @@ namespace GameWise.crossyroad
                 Transform lockBtn = levelTransform.Find("LockButton/LockBtn");
                 Transform icon = levelTransform.Find("LockButton/Icon");
 
-                bool isCompleted = completedSet.Contains(i);
+                bool isCompleted = tempLevelSet.Contains(i);
 
                 // Completed ⇒ show LockBtn, hide Icon
                 // Not completed ⇒ hide LockBtn, show Icon
@@ -115,21 +110,22 @@ namespace GameWise.crossyroad
         {
             int currentLevel = PlayerPrefs.GetInt("CurrentLevel", 1);
             int nextLevel = currentLevel + 1;
-            Debug.Log("Current Level: " + currentLevel);
-            Debug.Log("Next Level: " + nextLevel);
-            HashSet<int> completedSet = new HashSet<int>(completedLevel);
+            tempLevelSet.Clear();
+            tempLevelSet.UnionWith(completedLevel);
 
             if (nextLevel > levelsParent.transform.childCount)
                 return; // No next level to unlock
 
 
-            string levelName = "Level_" + nextLevel;
-            Transform levelTransform = levelsParent.transform.Find(levelName);
-
-            bool isCompleted = completedSet.Contains(currentLevel);
+            bool isCompleted = tempLevelSet.Contains(currentLevel);
 
             if (isCompleted)
             {
+                if (!levelByNumber.TryGetValue(nextLevel, out Transform levelTransform))
+                {
+                    return;
+                }
+
                 Transform lockBtn = levelTransform.Find("LockButton/LockBtn");
                 Transform icon = levelTransform.Find("LockButton/Icon");
                 if (lockBtn != null) lockBtn.gameObject.SetActive(isCompleted);
@@ -164,6 +160,48 @@ namespace GameWise.crossyroad
 
             // ProgressManager.AddPlayed(nextLevel);
             SceneManager.LoadScene("GamePlay");
+        }
+
+        void CacheLevelTransforms()
+        {
+            levelByNumber.Clear();
+            Transform parent = levelsParent.transform;
+            for (int i = 0; i < parent.childCount; i++)
+            {
+                Transform child = parent.GetChild(i);
+                int levelNumber = ParseLevelNumberFromName(child.name);
+                if (levelNumber > 0)
+                {
+                    levelByNumber[levelNumber] = child;
+                }
+            }
+        }
+
+        int ParseLevelNumber(Transform buttonTransform)
+        {
+            if (buttonTransform == null) return -1;
+            Transform parent = buttonTransform.parent;
+            Transform levelRoot = parent != null ? parent.parent : null;
+            if (levelRoot == null) return -1;
+
+            return ParseLevelNumberFromName(levelRoot.name);
+        }
+
+        int ParseLevelNumberFromName(string name)
+        {
+            const string prefix = "Level_";
+            if (string.IsNullOrEmpty(name) || !name.StartsWith(prefix))
+            {
+                return -1;
+            }
+
+            string number = name.Substring(prefix.Length);
+            if (int.TryParse(number, out int levelNumber))
+            {
+                return levelNumber;
+            }
+
+            return -1;
         }
 
     }

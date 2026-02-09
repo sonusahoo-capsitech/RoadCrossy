@@ -695,7 +695,7 @@ Light:
     m_Type: 2
     m_Resolution: -1
     m_CustomResolution: -1
-    m_Strength: 1
+    m_Strength: 0
     m_Bias: 0.05
     m_NormalBias: 0.4
     m_NearPlane: 0.2
@@ -1586,7 +1586,6 @@ MonoBehaviour:
   - {fileID: 3725351658447014087, guid: e24c2422baae4474096d36edec6785e6, type: 3}
   - {fileID: 8526757999505323461, guid: d086eb8fe794140459c96dc9c87eb4ec, type: 3}
   - {fileID: 6981908528237509585, guid: e3718b7c4177aa94e8a862efef0a7c4e, type: 3}
-  - {fileID: 4918719827723563388, guid: ee199d56c5e7cf74c8da8249442cbe2d, type: 3}
   useFirstPrefabForSafeStart: 1
   usePrefabY: 1
   spawnTriggerDistance: 20
@@ -1600,6 +1599,8 @@ MonoBehaviour:
   lanesAhead: 12
   lanesBehind: 6
   maxSameTypeStreak: 2
+  spawnBudgetPerFrame: 3
+  cacheLaneLengths: 1
   grassWeight: 0.35
   roadWeight: 0.4
   riverWeight: 0.15
