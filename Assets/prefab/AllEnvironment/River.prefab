@@ -46,7 +46,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spawnArea: {fileID: 9015909129860706175}
   stonePrefab: {fileID: 4344297722029353013, guid: e18eb1e68911b4245b8f91733e93928a, type: 3}
-  stonesPerWave: 3
+  stonesPerWave: 1
   spawnInterval: 5
   stoneLifeTime: 10
   zigZagOffset: 1.5
