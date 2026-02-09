@@ -25,6 +25,7 @@ public class MenuUiManager : MonoBehaviour
     public GameObject gameOverPanel;
     public GameObject winPanel;
     public GameObject background;
+    public GameObject pausePanel;
 
     public static MenuUiManager Instance { get; private set; }
 
@@ -52,6 +53,7 @@ public class MenuUiManager : MonoBehaviour
         Instance = this;
         SetState(GameState.Menu);
         DontDestroyOnLoad(this.gameObject);
+        pausePanel .SetActive(false);
     }
 
     // Update is called once per frame
@@ -106,6 +108,11 @@ public class MenuUiManager : MonoBehaviour
     {
         SetState(GameState.Playing);
     }
+    public void openPausepanel()
+    {
+        pausePanel .SetActive (true); ;
+        PauseGame();
+    }
 
     public void PauseGame()
     {
@@ -116,6 +123,7 @@ public class MenuUiManager : MonoBehaviour
     public void ResumeGame()
     {
         if (CurrentState != GameState.Paused) return;
+       pausePanel.SetActive(false);
         SetState(GameState.Playing);
     }
 
@@ -140,6 +148,7 @@ public class MenuUiManager : MonoBehaviour
         play.gameObject.SetActive(true);
         SceneManager.LoadScene(0);
         SetState(GameState.Menu);
+        pausePanel.SetActive(false);
     }
 
     public void RestartGame()
@@ -149,6 +158,7 @@ public class MenuUiManager : MonoBehaviour
         gameOverPanel.SetActive(false);
         winPanel.SetActive(false);
         SetState(GameState.Playing);
+        pausePanel.SetActive(false);
     }
 
     public void LoadLevel(int levelIndex)
