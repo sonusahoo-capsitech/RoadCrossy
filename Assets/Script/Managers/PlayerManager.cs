@@ -227,8 +227,10 @@ namespace Gamewise.crossyroad
         void SnapToStone(Collider stoneCollider)
         {
             Vector3 center = stoneCollider.bounds.center;
+            Debug.Log($"Snapping to stone at center: {center}");
             Vector3 pos = transform.position;
-            pos.x = center.x;
+
+            pos.x = center.x + 0.3f; // Slightly reduce to prevent edge cases
             pos.z = center.z;
             transform.position = pos;
 

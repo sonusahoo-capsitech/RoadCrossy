@@ -57,8 +57,8 @@ namespace Gamewise.crossyroad
 
                 // Convert local → world
                 Vector3 worldPos = spawnArea.TransformPoint(localPos);
-                Debug.Log("Spawning stone at world X: " + worldPos);
-                // Debug.Log("Spawning stone at world Z: " + worldPos);
+                // Debug.Log("Spawning stone at world X: " + worldPos);
+              
 
                 GameObject stone = Instantiate(
                     stonePrefab,

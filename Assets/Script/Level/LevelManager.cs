@@ -40,7 +40,7 @@ namespace Gamewise.crossyroad
 
         [Header("Infinite Path Settings")]
         public int initialLaneCount = 18;
-        public int safeStartLanes = 3;
+        public int safeStartLanes = 1;
         public int lanesAhead = 12;
         public int lanesBehind = 6;
         public int maxSameTypeStreak = 2;
@@ -72,6 +72,7 @@ namespace Gamewise.crossyroad
         private readonly Queue<SpawnedLane> spawnedLanes = new Queue<SpawnedLane>();
         private readonly Dictionary<GameObject, float> laneLengthCache = new Dictionary<GameObject, float>(16);
         private bool hasLanesParent = false;
+        private bool lastSpawnWasRiver = false; // prevents back-to-back river lanes
 
         void Start()
         {
@@ -103,7 +104,7 @@ namespace Gamewise.crossyroad
         void InitInfinitePath()
         {
             ResolvePlayerReference();
-            ResetInfiniteState();
+            // ResetInfiniteState();
 
             if (usePrefabArray && pathPrefabs != null && pathPrefabs.Length > 0)
             {
@@ -115,6 +116,7 @@ namespace Gamewise.crossyroad
                 }
 
                 int remaining = Mathf.Max(0, initialLaneCount - safeStartLanes);
+                Debug.Log("Spawning " + remaining + " more lanes from array.");
                 for (int i = 0; i < remaining; i++)
                 {
                     SpawnLaneFromArray();
@@ -149,8 +151,9 @@ namespace Gamewise.crossyroad
             nextZPos = 0f;
             lastType = LaneType.Grass;
             sameTypeCount = 0;
+            lastSpawnWasRiver = false;
         }
-
+        // if the player reference is lost (e.g. player object was destroyed and recreated), try to find it again by tag
         void ResolvePlayerReference()
         {
             if (player != null) return;
@@ -320,6 +323,8 @@ namespace Gamewise.crossyroad
 
             InitLane(laneObj, type);
 
+            lastSpawnWasRiver = type == LaneType.River;
+
             float laneSize = GetLaneLength(laneObj, prefab);
             spawnedLanes.Enqueue(new SpawnedLane(laneObj, nextZPos, laneSize));
             nextZPos += laneSize;
@@ -335,8 +340,31 @@ namespace Gamewise.crossyroad
                     Debug.LogWarning("Path prefabs array is empty.");
                     return;
                 }
+                int randomIndex = Random.Range(0, pathPrefabs.Length);
+                prefab = pathPrefabs[randomIndex];
 
-                prefab = pathPrefabs[Random.Range(0, pathPrefabs.Length)];
+                // avoid spawning river twice in a row
+                int attempts = 0;
+                while (lastSpawnWasRiver && IsRiverPrefab(prefab) && attempts < 5)
+                {
+                    randomIndex = Random.Range(0, pathPrefabs.Length);
+                    prefab = pathPrefabs[randomIndex];
+                    attempts++;
+                }
+
+                if (lastSpawnWasRiver && IsRiverPrefab(prefab))
+                {
+                    GameObject alt = FindFirstNonRiverPrefab();
+                    prefab = alt != null ? alt : prefab; // fallback to river only if no alternative
+                }
+            }
+            else if (lastSpawnWasRiver && IsRiverPrefab(prefab))
+            {
+                GameObject alt = FindFirstNonRiverPrefab();
+                if (alt != null)
+                {
+                    prefab = alt;
+                }
             }
 
             if (prefab == null)
@@ -352,6 +380,8 @@ namespace Gamewise.crossyroad
                 : Instantiate(prefab, pos, Quaternion.identity);
 
             InitLaneFromComponents(laneObj);
+
+            lastSpawnWasRiver = IsRiverPrefab(prefab);
 
             float laneSize = GetLaneLength(laneObj, prefab);
             spawnedLanes.Enqueue(new SpawnedLane(laneObj, nextZPos, laneSize));
@@ -452,6 +482,12 @@ namespace Gamewise.crossyroad
             {
                 LaneType choice = WeightedRandom(wGrass, wRoad, wRiver, wRail, total);
 
+                // prevent consecutive rivers, allow streak logic for others
+                if (choice == LaneType.River && lastType == LaneType.River)
+                {
+                    continue;
+                }
+
                 if (choice == lastType && sameTypeCount >= maxSameTypeStreak)
                 {
                     continue;
@@ -498,6 +534,24 @@ namespace Gamewise.crossyroad
             int min = Mathf.Min(range.x, range.y);
             int max = Mathf.Max(range.x, range.y);
             return Random.Range(min, max + 1);
+        }
+
+        bool IsRiverPrefab(GameObject prefab)
+        {
+            return prefab != null && prefab.GetComponent<RiverLane>() != null;
+        }
+
+        GameObject FindFirstNonRiverPrefab()
+        {
+            if (pathPrefabs == null) return null;
+            for (int i = 0; i < pathPrefabs.Length; i++)
+            {
+                if (!IsRiverPrefab(pathPrefabs[i]))
+                {
+                    return pathPrefabs[i];
+                }
+            }
+            return null;
         }
 
         private enum LaneType
