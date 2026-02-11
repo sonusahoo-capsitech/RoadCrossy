@@ -7,6 +7,10 @@ TagManager:
   - Car
   - River
   - Stone
+  - Tree
+  - Grass
+  - Rail
+  - Road
   layers:
   - Default
   - TransparentFX
@@ -14,9 +18,9 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
-  - 
+  - Player
+  - Ground
+  - Obstacle
   - 
   - 
   - 
