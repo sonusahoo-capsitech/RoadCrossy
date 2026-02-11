@@ -608,10 +608,11 @@ MonoBehaviour:
   - Tree
   - Rock
   raycastDistance: 1.1
+  isJumping: 0
   updownButton: {fileID: 1285096408}
   rb: {fileID: 389613273}
   horizontalImpulse: 10
-  jumpImpulse: 10
+  jumpImpulse: 7
 --- !u!4 &389613272 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: d6a50f56a6b48c748b8f45cb18a86c3f, type: 3}

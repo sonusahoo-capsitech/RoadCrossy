@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8858175204067740292}
   - component: {fileID: 7470409999128136908}
+  - component: {fileID: 1252328397822951644}
   m_Layer: 0
   m_Name: SpawnManager
   m_TagString: Untagged
@@ -44,12 +45,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea063e3a1d02fa0448b81c235e889c6a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnArea: {fileID: 9015909129860706175}
+  spawnArea: {fileID: 8858175204067740292}
   stonePrefab: {fileID: 4344297722029353013, guid: e18eb1e68911b4245b8f91733e93928a, type: 3}
   stonesPerWave: 1
   spawnInterval: 5
   stoneLifeTime: 10
   zigZagOffset: 1.5
+--- !u!65 &1252328397822951644
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8942149728970412643}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 17.596748, y: 1.4052634, z: 3.026808}
+  m_Center: {x: 0.09891033, y: -0.72354484, z: 0.009441495}
 --- !u!1001 &8832764933305338004
 PrefabInstance:
   m_ObjectHideFlags: 0
