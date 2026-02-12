@@ -107,32 +107,58 @@ namespace Gamewise.crossyroad
         }
 
 
-        // bool IsObstacleInDirection(Vector3 direction)
-        // {
-        //     // Cast a ray from player position in the movement direction
-        //     Vector3 rayOrigin = transform.position;
+            bool IsObstacleInDirection(Vector3 direction)
+        {
+            Vector3 rayOrigin = transform.position + Vector3.up * 0.2f;
+            RaycastHit[] hits = Physics.RaycastAll(rayOrigin, direction, raycastDistance, ~0, QueryTriggerInteraction.Ignore);
 
-        //     // Get all hits in that direction
-        //     RaycastHit[] hits = Physics.RaycastAll(rayOrigin, direction, raycastDistance);
+            foreach (RaycastHit hit in hits)
+            {
+                // Ignore own colliders.
+                if (hit.collider.transform.root == transform)
+                    continue;
 
-        //     foreach (RaycastHit hit in hits)
-        //     {
-        //         // Skip if we hit ourselves
-        //         if (hit.collider.gameObject == gameObject)
-        //             continue;
+                if (IsObstacleTagInHierarchy(hit.collider.transform))
+                {
+                    return true;
+                }
+            }
 
-        //         // Check if the hit object has any of our obstacle tags
-        //         foreach (string obstacleTag in obstacleTags)
-        //         {
-        //             if (hit.collider.CompareTag(obstacleTag))
-        //             {
-        //                 return true; // Obstacle found
-        //             }
-        //         }
-        //     }
+            return false;
+        }
 
-        //     return false; // No obstacle found
-        // }
+        bool IsObstacleTag(string tag)
+        {
+            if (string.IsNullOrEmpty(tag) || obstacleTags == null || obstacleTags.Length == 0)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < obstacleTags.Length; i++)
+            {
+                if (tag == obstacleTags[i])
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        bool IsObstacleTagInHierarchy(Transform start)
+        {
+            Transform current = start;
+            while (current != null)
+            {
+                if (IsObstacleTag(current.tag))
+                {
+                    return true;
+                }
+                current = current.parent;
+            }
+
+            return false;
+        }
 
 
 
@@ -172,6 +198,7 @@ namespace Gamewise.crossyroad
             if (isJumping) return;
             if (!CanMove(direction)) return;
             if (direction == Vector3.back && !CanMoveBack()) return;
+            if (IsObstacleInDirection(direction)) return;
 
             // StartCoroutine(Jump(direction));
             Jump(direction);
@@ -220,7 +247,7 @@ namespace Gamewise.crossyroad
             Vector3 startPos = transform.position;
             Vector3 endPos = startPos + direction * moveDistance;
 
-            float elapsed = 0f;
+            // float elapsed = 0f;
 
             // while (elapsed < jumpDuration)
             // {
@@ -328,16 +355,32 @@ namespace Gamewise.crossyroad
             }
             if (tag == stoneTag)
             {
-                if (snapToStoneCenter)
+                if (tag == stoneTag)
                 {
-                    SnapToStone(collision.collider);
+                    // pendingStone = collision.collider;
+                    if (snapToStoneCenter)
+                    {
+                        SnapToStone(collision.collider);
+                    }
+                    isOnStone = true;
+                    isJumping = false;
+                    pendingStone = null;
+                    return;
                 }
-                isOnStone = true;
+
+
+            }
+
+            if (IsAllowedLandingSurface(tag))
+            {
                 isJumping = false;
+                isOnStone = false;
                 pendingStone = null;
                 return;
             }
-            if (IsAllowedLandingSurface(tag))
+
+            // Obstacles should block movement but must not permanently lock jump state.
+            if (IsObstacleTag(tag) || IsObstacleTagInHierarchy(collision.collider.transform))
             {
                 isJumping = false;
                 isOnStone = false;
@@ -359,6 +402,7 @@ namespace Gamewise.crossyroad
             if (collision.gameObject.CompareTag(stoneTag))
             {
                 isOnStone = false;
+
                 if (!isJumping)
                 {
                     RestoreYIfNeeded();
