@@ -48,7 +48,7 @@ MonoBehaviour:
   spawnArea: {fileID: 8858175204067740292}
   stonePrefab: {fileID: 4344297722029353013, guid: e18eb1e68911b4245b8f91733e93928a, type: 3}
   stonesPerWave: 1
-  spawnInterval: 5
+  spawnInterval: 10
   stoneLifeTime: 10
   zigZagOffset: 1.5
 --- !u!65 &1252328397822951644
@@ -70,8 +70,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 17.596748, y: 1.4052634, z: 3.026808}
-  m_Center: {x: 0.09891033, y: -0.72354484, z: 0.009441495}
+  m_Size: {x: 10.82133, y: 1.4052634, z: 2.245553}
+  m_Center: {x: 0.61611414, y: -0.72354484, z: 0.12832832}
 --- !u!1001 &8832764933305338004
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -251,7 +251,7 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 1
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Size: {x: 24.999996, y: 0.111871235, z: 0.9999999}
   m_Center: {x: 0, y: 0.055935618, z: 0}
