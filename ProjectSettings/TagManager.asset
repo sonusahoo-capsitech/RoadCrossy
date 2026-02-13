@@ -11,6 +11,7 @@ TagManager:
   - Grass
   - Rail
   - Road
+  - Train
   layers:
   - Default
   - TransparentFX

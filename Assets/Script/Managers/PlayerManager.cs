@@ -176,8 +176,9 @@ namespace Gamewise.crossyroad
         {
             string tag = collision.gameObject.tag;
 
-            if (tag == "Car" || tag == "River")
+            if (tag == "Car" || tag == "River" || tag == "Train")
             {
+                Debug.Log("Collided with " + tag + ". Game Over.");
                 MenuUiManager.Instance.EndGame();
                 return;
             }
